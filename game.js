@@ -37,6 +37,7 @@ function createModelRenderer(){
     const compositeContext=composite.getContext('2d');
     const anchor=new THREE.Group();scene.add(anchor);
     const holder=new THREE.Group();anchor.add(holder);
+    const pose={time:0,lean:0,bob:0};
     const loader=new THREE.MTLLoader();
     loader.setCrossOrigin('anonymous');
     loader.load(selected.mtl,materials=>{
@@ -56,17 +57,33 @@ function createModelRenderer(){
         const factor=.62/Math.max(size.y,.001);
         holder.scale.set(factor,factor,factor);
         holder.position.set(-center.x*factor,-bbox.min.y*factor,-center.z*factor);
+        pose.baseY=holder.position.y;
+        pose.baseScaleY=holder.scale.y;
+        pose.baseScaleX=holder.scale.x;
         result.ready=true;
         console.info('[Grand Chase 3D] modelo carregado:',param||'elesis','dimensões:',size.x,size.y,size.z,'escala:',factor);
       },undefined,error=>console.warn('Não foi possível carregar o OBJ; usando personagem 2D.',error));
     },undefined,error=>console.warn('Não foi possível carregar o material 3D; usando personagem 2D.',error));
-    result.draw=(p,scroll,status)=>{
+    result.draw=(p,scroll,status,dt)=>{
       anchor.visible=result.ready && !!p && !(p.invul>0&&Math.floor(p.invul*16)%2===0);
       if(anchor.visible){
         // Match the pixel coordinates of the original 2D physics/collision engine.
         anchor.position.set((p.x+p.w/2-scroll-480)/100,(270-(p.y+p.h))/100,0);
         anchor.scale.x=p.face;
-        holder.rotation.z=p.attackFx>0?(-p.face*.13):0;
+        // Procedural animation for static OBJ geometry (no bones or rig).
+        const active=status==='play',moving=active&&Math.abs(p.vx)>15&&p.onGround;
+        const airborne=!p.onGround,attacking=p.attackFx>0;
+        if(active)pose.time+=Math.min(dt||0,.05);
+        const stride=Math.sin(pose.time*(moving?15:2.7));
+        const targetLean=attacking?-.20:airborne?(p.vy<0?-.11:.12):moving?.075:0;
+        pose.lean+=(targetLean-pose.lean)*.18;
+        const bob=moving?Math.abs(stride)*.035:airborne?0:Math.sin(pose.time*2.7)*.012;
+        holder.rotation.z=pose.lean+(moving?stride*.075:0)+(attacking?Math.sin((p.attackFx/.35)*Math.PI)*-.14:0);
+        holder.rotation.y=moving?stride*.045:0;
+        holder.position.y=pose.baseY+bob;
+        holder.scale.y=pose.baseScaleY*(airborne?(p.vy<0?1.055:.96):moving?1+Math.sin(pose.time*30)*.018:1);
+        holder.scale.x=pose.baseScaleX*(moving?1-Math.sin(pose.time*30)*.012:1);
+        if(p.dashCd>.70)holder.rotation.z=-.24;
       }
       renderer.render(scene,camera3d);
       if(!anchor.visible){result.visible=false;return}
@@ -139,7 +156,7 @@ if(!visual3d.ready && !(player.invul>0&&Math.floor(player.invul*16)%2===0)){c.sa
 if(player.attackFx>0){c.fillStyle='rgba(251,232,157,.38)';c.beginPath();c.ellipse(player.x+player.w/2+player.face*(hero.reach/2),player.y+29,hero.reach/2,42,0,0,Math.PI*2);c.fill()}
 for(const p of particles){c.globalAlpha=Math.min(1,p.life*2);c.fillStyle=p.color;c.fillRect(p.x,p.y,5,5)}c.globalAlpha=1;c.restore();
 if(state==='paused'){c.fillStyle='#060c1ab8';c.fillRect(0,0,W,H);c.fillStyle='white';c.font='bold 45px sans-serif';c.textAlign='center';c.fillText('PAUSADO',W/2,H/2);c.font='20px sans-serif';c.fillText('Pressione ESC para continuar',W/2,H/2+44);c.textAlign='left'}}
-function frame(t){const dt=Math.min(.035,(t-last)/1000||0);last=t;step(dt);draw();visual3d.draw(player,camera,state);requestAnimationFrame(frame)}
+function frame(t){const dt=Math.min(.035,(t-last)/1000||0);last=t;step(dt);draw();visual3d.draw(player,camera,state,dt);requestAnimationFrame(frame)}
 window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].includes(e.code))e.preventDefault();if(e.repeat&&['KeyJ','KeyK','ShiftLeft','ShiftRight','Escape'].includes(e.code))return;keys.add(e.code);if(e.code==='Escape'){state=state==='paused'?'play':state==='play'?'paused':state;return}if(state!=='play')return;if((e.code==='KeyW'||e.code==='Space'||e.code==='ArrowUp')&&player.onGround){player.vy=-660;player.onGround=false;beep(600,.035)}if(e.code==='KeyJ')attack();if(e.code==='KeyK')attack(true);if((e.code==='ShiftLeft'||e.code==='ShiftRight')&&player.dashCd===0){player.x=Math.max(0,Math.min(world-player.w,player.x+player.face*115));player.invul=.3;player.dashCd=1;burst(player.x,player.y+35,'#a9f4ff');beep(680,.09)}});
 window.addEventListener('keyup',e=>keys.delete(e.code));window.addEventListener('blur',()=>{keys.clear();if(state==='play')state='paused'});
 $('retry').addEventListener('click',reset);$('restart').addEventListener('click',reset);$('sound').addEventListener('click',()=>{muted=!muted;$('sound').textContent=muted?'♫ Áudio: desligado':'♫ Áudio: ligado'});reset();requestAnimationFrame(frame);
