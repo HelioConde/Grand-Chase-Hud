@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Grand Chase HUD — Missão</title><link rel="stylesheet" href="game.css"></head>
+<body><main id="shell">
+<header><a href="iniciar.html" class="back">← Personagens</a><span class="eyebrow">MODO MISSÃO · PROTÓTIPO JOGÁVEL</span><button id="sound" title="Alternar sons">♫ Áudio: ligado</button></header>
+<section class="hud"><div class="portrait"><img id="portrait" src="img/char_1.png" alt=""></div><div class="meters"><div class="identity"><strong id="name">Elesis</strong><span id="stageLabel">Vale da Ruína · Fase 1</span></div><div class="meter hp"><div id="hpFill"></div><span id="hpText">100 / 100 HP</span></div><div class="meter mp"><div id="mpFill"></div><span id="mpText">0 / 100 MP</span></div></div><div class="score">PONTOS <b id="score">0</b><small id="kills">0 / 8 inimigos</small></div></section>
+<div id="arena"><canvas id="game" width="960" height="540" aria-label="Área jogável"></canvas><div id="notice" class="notice">Derrote os inimigos e alcance o portal!</div><div id="overlay" class="overlay hidden"><h1 id="overlayTitle"></h1><p id="overlayText"></p><button id="retry">Jogar novamente</button><a href="iniciar.html">Escolher outro personagem</a></div></div>
+<footer><span><kbd>A</kbd><kbd>D</kbd> Mover · <kbd>W</kbd>/<kbd>Espaço</kbd> Pular · <kbd>J</kbd> Atacar · <kbd>K</kbd> Especial · <kbd>Shift</kbd> Dash · <kbd>Esc</kbd> Pausar</span><button id="restart">Reiniciar</button></footer></main><script defer src="game.js"></script></body></html>

@@ -157,12 +157,17 @@
             <hr>
             <div>
                 <span class="button">
-                    <button>Iniciar</button>
+                    <button id="startGame" type="button">Iniciar missão</button>
                 </span>
                 <div class="exit"><i>ESC</i> Sair do Jogo</div>
             </div>
         </div>
     </main>
-</body>
+<script>
+document.getElementById('startGame').addEventListener('click', function () {
+  const selected = (typeof char === 'string' && ['elesis','lire','arme','lass'].includes(char)) ? char : 'elesis';
+  window.location.href = './game.html?char=' + encodeURIComponent(selected);
+});
+</script></body>
 
 </html>
