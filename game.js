@@ -12,7 +12,7 @@ let player,enemies,particles,portal,score,kills,state,last=0,camera=0,spawnTimer
 let audio;
 
 function createModelRenderer(){
-  const result={ready:false,draw:()=>{}};
+  const result={ready:false,visible:false,draw:()=>{}};
   const assets={
     elesis:{obj:'models/elesis/Elesis.obj',mtl:'models/elesis/Elesis.mtl',rotation:[1.4,3.15,5.38]},
     lire:{obj:'models/lire/Lire.obj',mtl:'models/lire/Lire.obj.mtl',rotation:[1.4,3.15,5.38]},
@@ -43,6 +43,7 @@ function createModelRenderer(){
         // Keep the same source model orientation used by the original character-selection screen.
         mesh.rotation.set(selected.rotation[0],selected.rotation[1],selected.rotation[2]);
         holder.add(mesh);
+        mesh.traverse(node=>{if(node instanceof THREE.Mesh){node.frustumCulled=false;const mats=Array.isArray(node.material)?node.material:[node.material];mats.forEach(m=>{if(m){m.side=THREE.DoubleSide;m.transparent=false;m.depthWrite=true;m.needsUpdate=true}})}});
         mesh.updateMatrixWorld(true);
         const bbox=new THREE.Box3().setFromObject(holder);
         const size=new THREE.Vector3(bbox.max.x-bbox.min.x,bbox.max.y-bbox.min.y,bbox.max.z-bbox.min.z);
@@ -53,6 +54,7 @@ function createModelRenderer(){
         holder.scale.set(factor,factor,factor);
         holder.position.set(-center.x*factor,-bbox.min.y*factor,-center.z*factor);
         result.ready=true;
+        console.info('[Grand Chase 3D] modelo carregado:',param||'elesis','dimensões:',size.x,size.y,size.z,'escala:',factor);
       },undefined,error=>console.warn('Não foi possível carregar o OBJ; usando personagem 2D.',error));
     },undefined,error=>console.warn('Não foi possível carregar o material 3D; usando personagem 2D.',error));
     result.draw=(p,scroll,status)=>{
@@ -64,6 +66,21 @@ function createModelRenderer(){
         holder.rotation.z=p.attackFx>0?(-p.face*.13):0;
       }
       renderer.render(scene,camera3d);
+      // Do not hide the playable character if a successful OBJ load draws no pixels.
+      if(anchor.visible){
+        try{
+          const gl=renderer.getContext();
+          const px=Math.max(0,Math.min(959,Math.round(p.x+p.w/2-scroll)));
+          const py=Math.max(0,Math.min(539,Math.round(540-(p.y+p.h/2))));
+          const left=Math.max(0,px-20),bottom=Math.max(0,py-34);
+          const width=Math.min(960-left,40),height=Math.min(540-bottom,68);
+          const data=new Uint8Array(width*height*4);
+          gl.readPixels(left,bottom,width,height,gl.RGBA,gl.UNSIGNED_BYTE,data);
+          let visible=false;
+          for(let i=3;i<data.length;i+=4){if(data[i]>30){visible=true;break}}
+          if(visible!==result.visible){result.visible=visible;console.info('[Grand Chase 3D] pixels do modelo visíveis:',visible)}
+        }catch(error){result.visible=false}
+      }
     };
     window.addEventListener('pagehide',()=>renderer.dispose(),{once:true});
   }catch(error){console.warn('WebGL indisponível; usando personagem 2D.',error)}
@@ -96,7 +113,7 @@ c.fillStyle='#263c37';c.fillRect(0,ground,world,H-ground);c.fillStyle='#709e6c';
 for(const p of platforms){c.fillStyle='#5a615f';c.fillRect(p.x,p.y,p.w,p.h);c.fillStyle='#9ebb86';c.fillRect(p.x,p.y,p.w,5)}
 c.fillStyle=kills===8?'#9bf7d1':'#7783ac';c.fillRect(portal.x,portal.y,portal.w,portal.h);c.fillStyle=kills===8?'#56acb8':'#303e6a';c.fillRect(portal.x+7,portal.y+8,portal.w-14,portal.h-8);c.fillStyle='#ecf4ff';c.font='15px sans-serif';c.fillText('PORTAL',portal.x-4,portal.y-12);
 for(const e of enemies){if(!e.alive)continue;c.save();c.translate(e.x+e.w/2,e.y+e.h/2);c.scale(e.face,1);c.fillStyle=e.hit?'#fff2bc':'#a35c8c';c.beginPath();c.ellipse(0,4,20,24,0,0,Math.PI*2);c.fill();c.fillStyle='#321c37';c.fillRect(5,-3,5,5);c.fillRect(-11,-3,5,5);c.fillStyle='#36253b';c.fillRect(-13,25,11,7);c.fillRect(3,25,11,7);c.restore();c.fillStyle='#201e36';c.fillRect(e.x-6,e.y-14,47,5);c.fillStyle='#ef6b87';c.fillRect(e.x-6,e.y-14,47*Math.max(0,e.hp/e.maxHp),5)}
-if(!visual3d.ready && !(player.invul>0&&Math.floor(player.invul*16)%2===0)){c.save();c.translate(player.x+player.w/2,player.y+player.h/2);c.scale(player.face,1);c.fillStyle=hero.color;c.fillRect(-15,-14,30,34);c.fillStyle='#ffe0b9';c.beginPath();c.arc(0,-23,14,0,Math.PI*2);c.fill();c.fillStyle='#17233d';c.fillRect(4,-25,4,4);c.fillStyle='#2e314a';c.fillRect(-14,20,10,12);c.fillRect(4,20,10,12);c.fillStyle='#d9e7f7';c.fillRect(13,-12,17,5);c.restore()}
+if(!visual3d.visible && !(player.invul>0&&Math.floor(player.invul*16)%2===0)){c.save();c.translate(player.x+player.w/2,player.y+player.h/2);c.scale(player.face,1);c.fillStyle=hero.color;c.fillRect(-15,-14,30,34);c.fillStyle='#ffe0b9';c.beginPath();c.arc(0,-23,14,0,Math.PI*2);c.fill();c.fillStyle='#17233d';c.fillRect(4,-25,4,4);c.fillStyle='#2e314a';c.fillRect(-14,20,10,12);c.fillRect(4,20,10,12);c.fillStyle='#d9e7f7';c.fillRect(13,-12,17,5);c.restore()}
 if(player.attackFx>0){c.fillStyle='rgba(251,232,157,.38)';c.beginPath();c.ellipse(player.x+player.w/2+player.face*(hero.reach/2),player.y+29,hero.reach/2,42,0,0,Math.PI*2);c.fill()}
 for(const p of particles){c.globalAlpha=Math.min(1,p.life*2);c.fillStyle=p.color;c.fillRect(p.x,p.y,5,5)}c.globalAlpha=1;c.restore();
 if(state==='paused'){c.fillStyle='#060c1ab8';c.fillRect(0,0,W,H);c.fillStyle='white';c.font='bold 45px sans-serif';c.textAlign='center';c.fillText('PAUSADO',W/2,H/2);c.font='20px sans-serif';c.fillText('Pressione ESC para continuar',W/2,H/2+44);c.textAlign='left'}}
