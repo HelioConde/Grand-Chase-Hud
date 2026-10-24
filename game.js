@@ -27,11 +27,12 @@ function createModelRenderer(){
     camera3d.position.set(0,0,15);camera3d.lookAt(0,0,0);
     scene.add(new THREE.AmbientLight(0xffffff,.85));
     const light=new THREE.DirectionalLight(0xffffff,.8);light.position.set(3,6,8);scene.add(light);
-    const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,premultipliedAlpha:false});
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    const renderer=new THREE.WebGLRenderer({alpha:false,antialias:true,preserveDrawingBuffer:true});
+    renderer.setPixelRatio(1);
     renderer.setSize(960,540,false);
-    renderer.setClearColor(0x000000,0);
-    document.getElementById('modelLayer').appendChild(renderer.domElement);
+    // Use a distinctive chroma-key background; composite only 3D pixels onto the 2D arena.
+    renderer.setClearColor(0xff00ff,1);
+    // The WebGL canvas stays offscreen and never covers the 2D level.
     const anchor=new THREE.Group();scene.add(anchor);
     const holder=new THREE.Group();anchor.add(holder);
     const loader=new THREE.MTLLoader();
@@ -66,20 +67,34 @@ function createModelRenderer(){
         holder.rotation.z=p.attackFx>0?(-p.face*.13):0;
       }
       renderer.render(scene,camera3d);
-      // Do not hide the playable character if a successful OBJ load draws no pixels.
-      if(anchor.visible){
-        try{
-          const gl=renderer.getContext();
-          const px=Math.max(0,Math.min(959,Math.round(p.x+p.w/2-scroll)));
-          const py=Math.max(0,Math.min(539,Math.round(540-(p.y+p.h/2))));
-          const left=Math.max(0,px-20),bottom=Math.max(0,py-34);
-          const width=Math.min(960-left,40),height=Math.min(540-bottom,68);
-          const data=new Uint8Array(width*height*4);
-          gl.readPixels(left,bottom,width,height,gl.RGBA,gl.UNSIGNED_BYTE,data);
-          let visible=false;
-          for(let i=3;i<data.length;i+=4){if(data[i]>30){visible=true;break}}
-          if(visible!==result.visible){result.visible=visible;console.info('[Grand Chase 3D] pixels do modelo visíveis:',visible)}
-        }catch(error){result.visible=false}
+      if(!anchor.visible){result.visible=false;return}
+      try{
+        const gl=renderer.getContext();
+        const screenX=Math.round(p.x+p.w/2-scroll);
+        const feetY=Math.round(p.y+p.h);
+        const left=Math.max(0,Math.min(959,screenX-70));
+        const bottom=Math.max(0,Math.min(539,540-feetY-22));
+        const width=Math.min(960-left,140);
+        const height=Math.min(540-bottom,115);
+        const pixels=new Uint8Array(width*height*4);
+        gl.readPixels(left,bottom,width,height,gl.RGBA,gl.UNSIGNED_BYTE,pixels);
+        const frame=ctx.createImageData(width,height);
+        let count=0;
+        for(let y=0;y<height;y++){
+          for(let x=0;x<width;x++){
+            const src=((height-1-y)*width+x)*4, dst=(y*width+x)*4;
+            const r=pixels[src],g=pixels[src+1],b=pixels[src+2],a=pixels[src+3];
+            const key=(r>235&&b>235&&g<25);
+            frame.data[dst]=r;frame.data[dst+1]=g;frame.data[dst+2]=b;
+            frame.data[dst+3]=key?0:a;
+            if(!key&&a>30)count++;
+          }
+        }
+        result.visible=count>10;
+        if(result.visible)ctx.putImageData(frame,left,540-bottom-height);
+      }catch(error){
+        result.visible=false;
+        if(!result.warned){console.warn('[Grand Chase 3D] falha ao compor modelo sobre a fase:',error);result.warned=true}
       }
     };
     window.addEventListener('pagehide',()=>renderer.dispose(),{once:true});
