@@ -27,11 +27,11 @@ function createModelRenderer(){
     camera3d.position.set(0,0,15);camera3d.lookAt(0,0,0);
     scene.add(new THREE.AmbientLight(0xffffff,.85));
     const light=new THREE.DirectionalLight(0xffffff,.8);light.position.set(3,6,8);scene.add(light);
-    const renderer=new THREE.WebGLRenderer({alpha:false,antialias:true,preserveDrawingBuffer:true});
+    const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,premultipliedAlpha:false,preserveDrawingBuffer:true});
     renderer.setPixelRatio(1);
     renderer.setSize(960,540,false);
-    // Use a distinctive chroma-key background; composite only 3D pixels onto the 2D arena.
-    renderer.setClearColor(0xff00ff,1);
+    // A genuinely transparent WebGL framebuffer avoids chroma-key boxes.
+    renderer.setClearColor(0x000000,0);
     // The WebGL canvas stays offscreen and never covers the 2D level.
     const anchor=new THREE.Group();scene.add(anchor);
     const holder=new THREE.Group();anchor.add(holder);
@@ -69,35 +69,12 @@ function createModelRenderer(){
       renderer.render(scene,camera3d);
       if(!anchor.visible){result.visible=false;return}
       try{
-        const gl=renderer.getContext();
-        const screenX=Math.round(p.x+p.w/2-scroll);
-        const feetY=Math.round(p.y+p.h);
-        const left=Math.max(0,Math.min(959,screenX-70));
-        const bottom=Math.max(0,Math.min(539,540-feetY-22));
-        const width=Math.min(960-left,140);
-        const height=Math.min(540-bottom,115);
-        const pixels=new Uint8Array(width*height*4);
-        gl.readPixels(left,bottom,width,height,gl.RGBA,gl.UNSIGNED_BYTE,pixels);
-        const frame=ctx.createImageData(width,height);
-        let count=0;
-        for(let y=0;y<height;y++){
-          for(let x=0;x<width;x++){
-            const src=((height-1-y)*width+x)*4, dst=(y*width+x)*4;
-            const r=pixels[src],g=pixels[src+1],b=pixels[src+2],a=pixels[src+3];
-            const key=(r>235&&b>235&&g<25);
-            frame.data[dst]=r;frame.data[dst+1]=g;frame.data[dst+2]=b;
-            frame.data[dst+3]=key?0:a;
-            if(!key&&a>30)count++;
-          }
-        }
-        result.visible=count>10;
-        if(result.visible){
-          // putImageData works in backing-store pixels and must remain inside the 960x540 game canvas.
-          ctx.putImageData(frame,left,540-bottom-height);
-        }
+        // drawImage honors WebGL alpha and composites without replacing scenery pixels.
+        ctx.drawImage(renderer.domElement,0,0,960,540);
+        result.visible=true;
       }catch(error){
         result.visible=false;
-        if(!result.warned){console.warn('[Grand Chase 3D] falha ao compor modelo sobre a fase:',error);result.warned=true}
+        if(!result.warned){console.warn('[Grand Chase 3D] falha na composição transparente:',error);result.warned=true}
       }
     };
     window.addEventListener('pagehide',()=>renderer.dispose(),{once:true});
@@ -131,7 +108,7 @@ c.fillStyle='#263c37';c.fillRect(0,ground,world,H-ground);c.fillStyle='#709e6c';
 for(const p of platforms){c.fillStyle='#5a615f';c.fillRect(p.x,p.y,p.w,p.h);c.fillStyle='#9ebb86';c.fillRect(p.x,p.y,p.w,5)}
 c.fillStyle=kills===8?'#9bf7d1':'#7783ac';c.fillRect(portal.x,portal.y,portal.w,portal.h);c.fillStyle=kills===8?'#56acb8':'#303e6a';c.fillRect(portal.x+7,portal.y+8,portal.w-14,portal.h-8);c.fillStyle='#ecf4ff';c.font='15px sans-serif';c.fillText('PORTAL',portal.x-4,portal.y-12);
 for(const e of enemies){if(!e.alive)continue;c.save();c.translate(e.x+e.w/2,e.y+e.h/2);c.scale(e.face,1);c.fillStyle=e.hit?'#fff2bc':'#a35c8c';c.beginPath();c.ellipse(0,4,20,24,0,0,Math.PI*2);c.fill();c.fillStyle='#321c37';c.fillRect(5,-3,5,5);c.fillRect(-11,-3,5,5);c.fillStyle='#36253b';c.fillRect(-13,25,11,7);c.fillRect(3,25,11,7);c.restore();c.fillStyle='#201e36';c.fillRect(e.x-6,e.y-14,47,5);c.fillStyle='#ef6b87';c.fillRect(e.x-6,e.y-14,47*Math.max(0,e.hp/e.maxHp),5)}
-if(!visual3d.visible && !(player.invul>0&&Math.floor(player.invul*16)%2===0)){c.save();c.translate(player.x+player.w/2,player.y+player.h/2);c.scale(player.face,1);c.fillStyle=hero.color;c.fillRect(-15,-14,30,34);c.fillStyle='#ffe0b9';c.beginPath();c.arc(0,-23,14,0,Math.PI*2);c.fill();c.fillStyle='#17233d';c.fillRect(4,-25,4,4);c.fillStyle='#2e314a';c.fillRect(-14,20,10,12);c.fillRect(4,20,10,12);c.fillStyle='#d9e7f7';c.fillRect(13,-12,17,5);c.restore()}
+if(!visual3d.ready && !(player.invul>0&&Math.floor(player.invul*16)%2===0)){c.save();c.translate(player.x+player.w/2,player.y+player.h/2);c.scale(player.face,1);c.fillStyle=hero.color;c.fillRect(-15,-14,30,34);c.fillStyle='#ffe0b9';c.beginPath();c.arc(0,-23,14,0,Math.PI*2);c.fill();c.fillStyle='#17233d';c.fillRect(4,-25,4,4);c.fillStyle='#2e314a';c.fillRect(-14,20,10,12);c.fillRect(4,20,10,12);c.fillStyle='#d9e7f7';c.fillRect(13,-12,17,5);c.restore()}
 if(player.attackFx>0){c.fillStyle='rgba(251,232,157,.38)';c.beginPath();c.ellipse(player.x+player.w/2+player.face*(hero.reach/2),player.y+29,hero.reach/2,42,0,0,Math.PI*2);c.fill()}
 for(const p of particles){c.globalAlpha=Math.min(1,p.life*2);c.fillStyle=p.color;c.fillRect(p.x,p.y,5,5)}c.globalAlpha=1;c.restore();
 if(state==='paused'){c.fillStyle='#060c1ab8';c.fillRect(0,0,W,H);c.fillStyle='white';c.font='bold 45px sans-serif';c.textAlign='center';c.fillText('PAUSADO',W/2,H/2);c.font='20px sans-serif';c.fillText('Pressione ESC para continuar',W/2,H/2+44);c.textAlign='left'}}
