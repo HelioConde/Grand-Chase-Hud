@@ -41,18 +41,17 @@ function createModelRenderer(){
       const objloader=new THREE.OBJLoader();objloader.setMaterials(materials);
       objloader.load(selected.obj,mesh=>{
         // Keep the same source model orientation used by the original character-selection screen.
-        mesh.rotation.set(...selected.rotation);
+        mesh.rotation.set(selected.rotation[0],selected.rotation[1],selected.rotation[2]);
         holder.add(mesh);
         mesh.updateMatrixWorld(true);
         const bbox=new THREE.Box3().setFromObject(holder);
-        if(bbox.isEmpty()){console.warn('Modelo 3D sem geometria');return}
-        const size=bbox.getSize(new THREE.Vector3());
-        const center=bbox.getCenter(new THREE.Vector3());
+        const size=new THREE.Vector3(bbox.max.x-bbox.min.x,bbox.max.y-bbox.min.y,bbox.max.z-bbox.min.z);
+        const center=new THREE.Vector3((bbox.max.x+bbox.min.x)/2,(bbox.max.y+bbox.min.y)/2,(bbox.max.z+bbox.min.z)/2);
         if(!Number.isFinite(size.y)||size.y<=0)return;
         // Normalize every existing OBJ to a common game-world height (~62 px).
         const factor=.62/Math.max(size.y,.001);
+        holder.scale.set(factor,factor,factor);
         holder.position.set(-center.x*factor,-bbox.min.y*factor,-center.z*factor);
-        holder.scale.setScalar(factor);
         result.ready=true;
       },undefined,error=>console.warn('Não foi possível carregar o OBJ; usando personagem 2D.',error));
     },undefined,error=>console.warn('Não foi possível carregar o material 3D; usando personagem 2D.',error));
