@@ -6,7 +6,8 @@ const roster={elesis:{name:'Elesis',portrait:1,color:'#f16b82',speed:265,attack:
 const param=new URLSearchParams(location.search).get('char');
 const hero=roster[param]||roster.elesis;
 $('name').textContent=hero.name;$('portrait').src='img/char_'+hero.portrait+'.png';
-const visual3d=createModelRenderer();\nconst W=960,H=540,ground=463,world=2420,keys=new Set(),gravity=1750;
+const visual3d=createModelRenderer();
+const W=960,H=540,ground=463,world=2420,keys=new Set(),gravity=1750;
 let player,enemies,particles,portal,score,kills,state,last=0,camera=0,spawnTimer=0,noticeTimer=0,muted=false;
 let audio;
 
@@ -69,7 +70,8 @@ function createModelRenderer(){
   }catch(error){console.warn('WebGL indisponível; usando personagem 2D.',error)}
   return result;
 }
-\nfunction beep(freq=300,duration=.07){if(muted)return;try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.value=freq;g.gain.setValueAtTime(.045,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}catch(_e){}}
+
+function beep(freq=300,duration=.07){if(muted)return;try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.value=freq;g.gain.setValueAtTime(.045,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}catch(_e){}}
 function reset(){player={x:90,y:ground-62,w:37,h:62,vx:0,vy:0,face:1,hp:100,mp:0,onGround:false,attackCd:0,dashCd:0,invul:0,flash:0,attackFx:0};enemies=[];particles=[];portal={x:world-110,y:ground-96,w:60,h:96};score=0;kills=0;spawnTimer=0;camera=0;state='play';for(let i=0;i<8;i++)enemies.push(makeEnemy(450+i*238,i));$('overlay').classList.add('hidden');message('Derrote 8 inimigos e alcance o portal!');updateHud()}
 function makeEnemy(x,i){return{x,y:ground-48,w:35,h:48,hp:35+(i%3)*13,maxHp:35+(i%3)*13,vx:0,attackCd:Math.random()*.5,hit:0,alive:true,face:-1,origin:x}}
 function message(s){$('notice').textContent=s;noticeTimer=3}
