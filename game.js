@@ -27,12 +27,14 @@ function createModelRenderer(){
     camera3d.position.set(0,0,15);camera3d.lookAt(0,0,0);
     scene.add(new THREE.AmbientLight(0xffffff,.85));
     const light=new THREE.DirectionalLight(0xffffff,.8);light.position.set(3,6,8);scene.add(light);
-    const renderer=new THREE.WebGLRenderer({alpha:true,antialias:true,premultipliedAlpha:false,preserveDrawingBuffer:true});
+    const renderer=new THREE.WebGLRenderer({alpha:false,antialias:true,preserveDrawingBuffer:true});
     renderer.setPixelRatio(1);
     renderer.setSize(960,540,false);
-    // A genuinely transparent WebGL framebuffer avoids chroma-key boxes.
-    renderer.setClearColor(0x000000,0);
+    // Explicit key color works with legacy Three.js r78, whose framebuffer may be opaque.
+    renderer.setClearColor(0x00ff00,1);
     // The WebGL canvas stays offscreen and never covers the 2D level.
+    const composite=document.createElement('canvas');
+    const compositeContext=composite.getContext('2d');
     const anchor=new THREE.Group();scene.add(anchor);
     const holder=new THREE.Group();anchor.add(holder);
     const loader=new THREE.MTLLoader();
@@ -69,9 +71,34 @@ function createModelRenderer(){
       renderer.render(scene,camera3d);
       if(!anchor.visible){result.visible=false;return}
       try{
-        // drawImage honors WebGL alpha and composites without replacing scenery pixels.
-        ctx.drawImage(renderer.domElement,0,0,960,540);
-        result.visible=true;
+        const screenX=Math.round(p.x+p.w/2-scroll);
+        const feetY=Math.round(p.y+p.h);
+        const left=Math.max(0,Math.min(959,screenX-70));
+        const bottom=Math.max(0,Math.min(539,540-feetY-22));
+        const width=Math.min(960-left,140);
+        const height=Math.min(540-bottom,115);
+        const pixels=new Uint8Array(width*height*4);
+        renderer.getContext().readPixels(left,bottom,width,height,renderer.getContext().RGBA,renderer.getContext().UNSIGNED_BYTE,pixels);
+        composite.width=width;composite.height=height;
+        const frame=compositeContext.createImageData(width,height);
+        let visible=0;
+        for(let y=0;y<height;y++){
+          for(let x=0;x<width;x++){
+            const src=((height-1-y)*width+x)*4, dst=(y*width+x)*4;
+            const r=pixels[src],g=pixels[src+1],b=pixels[src+2];
+            // Remove pure green clear pixels, not the scene behind the character.
+            const excess=g-Math.max(r,b);
+            const alpha=excess>110?0:excess>30?Math.round(255*(110-excess)/80):255;
+            frame.data[dst]=r;frame.data[dst+1]=g;frame.data[dst+2]=b;frame.data[dst+3]=alpha;
+            if(alpha>80)visible++;
+          }
+        }
+        result.visible=visible>10;
+        if(result.visible){
+          compositeContext.putImageData(frame,0,0);
+          // Unlike putImageData on the game canvas, drawImage alpha-blends the model.
+          ctx.drawImage(composite,left,540-bottom-height);
+        }
       }catch(error){
         result.visible=false;
         if(!result.warned){console.warn('[Grand Chase 3D] falha na composição transparente:',error);result.warned=true}
