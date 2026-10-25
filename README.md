@@ -1,34 +1,74 @@
-# Grand Chase HUD — estudo de interface e jogo no navegador
+<div align="center">
+  <h1>⚔️ Grand Chase HUD — Protótipo jogável</h1>
+  <p><strong>Um experimento de interface, seleção de personagens e missão 2D para navegador, com visualização opcional de modelos 3D.</strong></p>
+  <p>
+    <img alt="HTML5 e JavaScript" src="https://img.shields.io/badge/HTML5%20%2B%20JavaScript-Jogo%20web-E34F26?logo=html5&logoColor=white">
+    <img alt="Three.js" src="https://img.shields.io/badge/Three.js-OBJ%2FMTL-111827">
+    <img alt="Status" src="https://img.shields.io/badge/Status-Prot%C3%B3tipo-64748b">
+  </p>
+</div>
 
-**Projeto experimental de interface inspirada em Grand Chase, com telas de entrada e experimentos de visualização 3D.**
+## O que é?
 
-![HTML](https://img.shields.io/badge/HTML-5-E34F26?logo=html5&logoColor=white) ![CSS](https://img.shields.io/badge/CSS-3-1572B6?logo=css3&logoColor=white) ![Status](https://img.shields.io/badge/status-experimental-64748b)
+O projeto começou como uma recriação experimental de interfaces inspiradas em **Grand Chase**. Além do menu inicial, o código agora contém uma **missão jogável**: personagem controlável, inimigos, barra de HP/MP, pontuação, ataque, habilidade especial e reinício.
 
-## Sobre
+**Não é um remake completo do jogo.** A experiência usa cenas e lógica próprias de demonstração; algumas telas do menu ainda são legadas.
 
-O repositório reúne uma experiência de interface de jogo para navegador, originalmente desenvolvida como exercício visual. A página inicial apresenta seleção visual de região, cenário em vídeo e entrada para outra tela do projeto.
+## Como jogar
 
-A proposta de evolução é unir a apresentação do menu com uma experiência de prática jogável, personagens, movimentação e combate. **Nem tudo isso deve ser considerado implementado ou validado** na versão atual.
+```bash
+git clone https://github.com/HelioConde/Grand-Chase-Hud.git
+cd Grand-Chase-Hud
+python -m http.server 8000
+```
 
-## Executar
+Abra `http://localhost:8000/` e navegue para a seleção de personagens. Para testar diretamente a missão, abra [`game.html`](game.html) no servidor local.
 
-1. Clone o repositório ou baixe os arquivos.
-2. Na raiz, inicie um servidor estático com `python -m http.server 8000`.
-3. Acesse `http://localhost:8000` e explore as telas disponíveis.
+| Tecla | Ação |
+| --- | --- |
+| `A` / `D` | Mover |
+| `W` / `Espaço` | Pular |
+| `J` | Atacar |
+| `K` | Especial |
+| `Shift` | Dash |
+| `Esc` | Pausar |
 
-Não há configuração npm exigida pela página inicial.
+**Missão demonstrativa:** derrote inimigos e alcance o portal. O jogo exibe HUD com HP, MP e pontuação. A arena usa um `canvas` 2D de referência `960 × 540`.
 
-## Estrutura e tecnologias
+## Personagens e modelos
 
-- `index.html` — entrada e interface de menu.
-- `iniciar.html` — destino do botão de início.
-- `style.css` — estilos da página inicial.
-- Arquivos de vídeo, imagens e scripts — recursos usados pela experiência.
+A seleção apresenta o elenco visual disponível no menu. O código da missão define lógica para **Elesis, Lire, Arme e Lass**. Essas escolhas têm parâmetros diferentes de movimentação/ataque.
 
-**Status:** protótipo legado em evolução. Para contribuir, primeiro confira a compatibilidade das páginas, os recursos 3D disponíveis e o comportamento dos controles.
+Em `models/`, existem recursos **OBJ/MTL** para esses quatro personagens. O renderer em `game.js` usa Three.js e, quando o carregamento é possível, compõe o modelo 3D sobre a cena 2D.
 
-## Aviso sobre propriedade intelectual
+> **Limitação importante:** a animação do modelo é **procedural** — inclinação, oscilação e pequenas transformações do objeto. Os modelos OBJ não têm rig/esqueleto animado nem animação óssea de caminhada. Se um modelo/material falhar, o jogo usa a representação 2D.
 
-Projeto independente, não oficial e sem vínculo com KOG ou os titulares de Grand Chase. Personagens, nomes e recursos de terceiros pertencem aos respectivos titulares e exigem atenção às permissões de uso e redistribuição.
+## Arquivos importantes
 
-Autor: [Hélio Conde](https://github.com/HelioConde).
+| Arquivo | Função |
+| --- | --- |
+| `index.html` / `style.css` | Tela inicial |
+| `iniciar.html` / `iniciar.css` | Seleção visual de personagens |
+| `game.html` / `game.css` | Tela da missão e HUD |
+| `game.js` | Combate, movimentação, inimigos e integração visual 3D |
+| `models/` | Modelos OBJ/MTL |
+| `js/three.min.js` | Motor 3D legado incluído |
+| `img/` | Retratos e recursos da interface |
+
+**Não há processo npm obrigatório:** os arquivos são estáticos e podem ser servidos por qualquer servidor HTTP local.
+
+## Estado e próximos marcos
+
+- [x] Menus e seleção de personagens.
+- [x] Missão web básica com movimentação e combate.
+- [x] Carregamento e normalização visual de modelos OBJ (com fallback).
+- [ ] Validar comportamento em navegadores/dispositivos atuais.
+- [ ] Refinar colisões, ataques, IA e feedback de combate.
+- [ ] Substituir transformações procedurais por modelos **rigados** caso essa direção seja retomada.
+- [ ] Criar mais conteúdo e testes automatizados antes de tratar como jogo completo.
+
+## Aviso de direitos autorais
+
+Projeto **independente, não oficial e de estudo**. Grand Chase, nomes de personagens, imagens e materiais de terceiros pertencem aos respectivos titulares. Verifique permissões de uso e redistribuição antes de lançar um produto público ou comercial.
+
+Desenvolvido por [Hélio Conde](https://github.com/HelioConde).
