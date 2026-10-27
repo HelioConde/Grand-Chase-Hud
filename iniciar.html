@@ -1,173 +1,32 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<script type="text/javascript" src="./js/three.min.js"></script>
-<script type="text/javascript" src="./js/MTLLoader.js"></script>
-<script type="text/javascript" src="./js/OBJLoader.js"></script>
-<script type="text/javascript" src="./js/script.js"></script>
-<link rel="stylesheet" href="iniciar.css">
-
-<body>
-    <div id="background">
-    </div>
-    <main>
-        <div class="logo">
-            <img src="./GC_logo.png" alt="">
-        </div>
-        <div class="info">
-            <div>
-                <span>Arme</span>
-                <span>
-                    Chase Nv.999
-                    </sp>
-            </div>
-        </div>
-        <div class="serve">
-            <div>
-                Lista de Personagem
-            </div>
-            <div class="chars">
-                <div class="elesis" onmouseup="load('elesis')">
-                    <span>
-                        Elesis
-                    </span>
-                    <img src="./img/char_1.png" alt="">
-                </div>
-                <div class="lire" onmouseup="load('lire')">
-                    <span>
-                        Lire
-                    </span>
-                    <img src="./img/char_2.png" alt="">
-                </div>
-                <div class="arme" onmouseup="load('arme')">
-                    <span>
-                        Arme
-                    </span>
-                    <img src="./img/char_3.png" alt="">
-                </div>
-                <div class="lass" onmouseup="load('lass')">
-                    <span>
-                        Lass
-                    </span>
-                    <img src="./img/char_4.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Ryan
-                    </span>
-                    <img src="./img/char_5.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Ronan
-                    </span>
-                    <img src="./img/char_6.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Amy
-                    </span>
-                    <img src="./img/char_7.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Jin
-                    </span>
-                    <img src="./img/char_8.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Sieghart
-                    </span>
-                    <img src="./img/char_9.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Mari
-                    </span>
-                    <img src="./img/char_10.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Dio
-                    </span>
-                    <img src="./img/char_11.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Zero
-                    </span>
-                    <img src="./img/char_12.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Rey
-                    </span>
-                    <img src="./img/char_13.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Lupus
-                    </span>
-                    <img src="./img/char_14.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Lin
-                    </span>
-                    <img src="./img/char_15.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Azin
-                    </span>
-                    <img src="./img/char_16.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Holy
-                    </span>
-                    <img src="./img/char_17.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Edel
-                    </span>
-                    <img src="./img/char_18.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Veigas
-                    </span>
-                    <img src="./img/char_19.png" alt="">
-                </div>
-                <div>
-                    <span>
-                        Uno
-                    </span>
-                    <img src="./img/char_20.png" alt="">
-                </div>
-            </div>
-            <hr>
-            <div>
-                <span class="button">
-                    <button id="startGame" type="button">Iniciar missão</button>
-                </span>
-                <div class="exit"><i>ESC</i> Sair do Jogo</div>
-            </div>
-        </div>
-    </main>
-<script>
-document.getElementById('startGame').addEventListener('click', function () {
-  const selected = (typeof char === 'string' && ['elesis','lire','arme','lass'].includes(char)) ? char : 'elesis';
-  window.location.href = './game.html?char=' + encodeURIComponent(selected);
-});
-</script></body>
-
-</html>
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0a1325"><meta name="description" content="Explore personagens e modelos 3D no projeto de fã Grand Chase HUD."><title>Personagens | Grand Chase HUD</title><link rel="stylesheet" href="./iniciar.css"></head>
+<body><main class="layout">
+<section class="stage"><div class="top"><a href="./" class="back">← Voltar ao portal</a><span class="edition">GRAND CHASE HUD · VISUALIZADOR</span></div>
+<div class="hero-heading"><img src="./GC_logo.png" alt="Grand Chase" class="logo"><div><p class="eyebrow">GALERIA DE PERSONAGENS</p><h1 id="selectedName">Elesis</h1><p id="selectedDesc">Guerreira · Modelo 3D disponível</p></div></div>
+<div class="viewer" id="background" role="img" aria-label="Visualização tridimensional do personagem selecionado"><div class="viewer-loading" id="viewerStatus" role="status">Carregando visualizador 3D…</div></div>
+<div class="viewer-footer"><span>Arraste para girar o personagem · Roda do mouse para aproximar</span><button id="resetView" type="button">Redefinir visão</button></div>
+<div class="bottom"><span>Projeto independente de fã · Experiência demonstrativa</span><button id="capture" type="button">📷 Capturar tela</button></div>
+</section>
+<aside class="sidebar" aria-label="Seleção de personagens"><div class="side-head"><span class="eyebrow">ESCOLHA SEU HERÓI</span><h2>Personagens</h2><p>Quatro modelos 3D disponíveis. Outros retratos fazem parte da galeria.</p></div><div class="chars" id="characters"><button class="char-card selected" type="button" data-char="elesis"  aria-pressed="true"><img src="./img/char_1.png" alt="" loading="eager"><span>Elesis</span></button>
+<button class="char-card" type="button" data-char="lire"  aria-pressed="false"><img src="./img/char_2.png" alt="" loading="eager"><span>Lire</span></button>
+<button class="char-card" type="button" data-char="arme"  aria-pressed="false"><img src="./img/char_3.png" alt="" loading="eager"><span>Arme</span></button>
+<button class="char-card" type="button" data-char="lass"  aria-pressed="false"><img src="./img/char_4.png" alt="" loading="eager"><span>Lass</span></button>
+<button class="char-card" type="button" data-char="ryan" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_5.png" alt="" loading="eager"><span>Ryan</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="ronan" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_6.png" alt="" loading="eager"><span>Ronan</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="amy" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_7.png" alt="" loading="eager"><span>Amy</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="jin" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_8.png" alt="" loading="eager"><span>Jin</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="sieghart" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_9.png" alt="" loading="lazy"><span>Sieghart</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="mari" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_10.png" alt="" loading="lazy"><span>Mari</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="dio" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_11.png" alt="" loading="lazy"><span>Dio</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="zero" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_12.png" alt="" loading="lazy"><span>Zero</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="rey" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_13.png" alt="" loading="lazy"><span>Rey</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="lupus" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_14.png" alt="" loading="lazy"><span>Lupus</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="lin" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_15.png" alt="" loading="lazy"><span>Lin</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="azin" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_16.png" alt="" loading="lazy"><span>Azin</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="holy" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_17.png" alt="" loading="lazy"><span>Holy</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="edel" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_18.png" alt="" loading="lazy"><span>Edel</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="veigas" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_19.png" alt="" loading="lazy"><span>Veigas</span><small>Em breve</small></button>
+<button class="char-card" type="button" data-char="uno" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_20.png" alt="" loading="lazy"><span>Uno</span><small>Em breve</small></button></div><div class="side-actions"><p id="selectionStatus" role="status">Elesis selecionada</p><a class="play" id="startGame" href="./game.html?char=elesis">Iniciar missão →</a></div></aside>
+</main>
+<div class="capture-help" id="captureHelp" hidden><div class="capture-dialog" role="dialog" aria-modal="true" aria-labelledby="captureTitle"><h2 id="captureTitle">Captura de tela</h2><p>O navegador solicitará que você escolha qual aba compartilhar. Selecione esta aba para salvar uma imagem PNG. Nenhum arquivo é enviado automaticamente.</p><div class="capture-actions"><button id="captureCancel" type="button">Cancelar</button><button id="captureContinue" type="button">Escolher aba</button></div></div></div>
+<script src="./js/three.min.js"></script><script src="./js/MTLLoader.js"></script><script src="./js/OBJLoader.js"></script><script src="./js/selection.js" defer></script></body></html>
