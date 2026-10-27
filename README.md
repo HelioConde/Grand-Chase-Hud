@@ -63,7 +63,9 @@ Em `models/`, existem recursos **OBJ/MTL** para esses quatro personagens. O rend
 - [x] Missão web básica com movimentação e combate.
 - [x] Carregamento e normalização visual de modelos OBJ (com fallback).
 - [ ] Validar comportamento em navegadores/dispositivos atuais.
-- [ ] Refinar colisões, ataques, IA e feedback de combate.
+- [x] Primeira rodada de controles: aceleração, frenagem, buffer de pulo e tolerância ao sair de plataformas.
+- [x] Primeira rodada de combate: combo de 3 golpes, fila curta de ataque, reação a acertos, antecipação do golpe inimigo e câmera suavizada.
+- [ ] Testar manualmente as mudanças de combate e ajustar equilíbrio, colisões, IA e feedback.
 - [ ] Substituir transformações procedurais por modelos **rigados** caso essa direção seja retomada.
 - [ ] Criar mais conteúdo e testes automatizados antes de tratar como jogo completo.
 
@@ -72,3 +74,14 @@ Em `models/`, existem recursos **OBJ/MTL** para esses quatro personagens. O rend
 Projeto **independente, não oficial e de estudo**. Grand Chase, nomes de personagens, imagens e materiais de terceiros pertencem aos respectivos titulares. Verifique permissões de uso e redistribuição antes de lançar um produto público ou comercial.
 
 Desenvolvido por [Hélio Conde](https://github.com/HelioConde).
+
+## Roteiro de evolução contínua (outubro de 2026)
+
+1. **Controles e estabilidade:** ajustes de movimentação, pausa, reinício e acessibilidade aplicados; validação em navegador pendente.
+2. **Combate:** combo de três ataques e golpes fortes no terceiro acerto; fila de comandos curta; inimigos mostram alerta antes de atacar.
+3. **IA e variedade:** três colorações de inimigos adicionadas, reação aos impactos e atordoamento breve; novos comportamentos e chefes pendentes.
+4. **Câmera e apresentação:** acompanhamento suavizado, tremor de impacto e indicador de combo; medir conforto de câmera em testes.
+5. **Modelos 3D:** carregamento OBJ/MTL preservado; rig e animação óssea ainda não implementados.
+6. **Expansão:** missões, checkpoints, novos cenários, controles móveis e testes Playwright são etapas futuras.
+
+**Nota de validação:** commits foram enviados ao GitHub, mas ainda não foram executados testes de navegador ou benchmark após esta rodada. O GitHub Pages pode levar alguns minutos para refletir as alterações.
