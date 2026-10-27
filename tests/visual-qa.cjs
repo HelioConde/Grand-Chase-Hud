@@ -71,6 +71,13 @@ const characters=['elesis','lire','arme','lass'];
    summary.push('|'+viewport.width+'×'+viewport.height+'|'+character+'|'+(data.passed?'PASS':'FAIL')+'|'+data.errors.length+'|'+(data.horizontalOverflow?'Sim':'Não')+'|');
    console.log(character,viewport.width+'x'+viewport.height,data.passed?'PASS':'FAIL',JSON.stringify(data.state),data.errors.join(' | '));
   }
+  // Capture the playable mission page and basic navigation state for each viewport.
+  await page.goto('http://127.0.0.1:8765/game.html?char=elesis',{waitUntil:'domcontentloaded'});
+  await page.waitForTimeout(1200);
+  const game=await page.evaluate(()=>({canvas:!!document.querySelector('#game'),horizontalOverflow:document.documentElement.scrollWidth>innerWidth,portrait:!!document.querySelector('#portrait'),restart:!!document.querySelector('#restart')}));
+  await page.screenshot({path:output+'/'+viewport.width+'x'+viewport.height+'-game.png',fullPage:true});
+  if(!game.canvas||game.horizontalOverflow||!game.restart){failed=true;console.error('Game page layout FAIL',viewport,game)}
+  report.push({page:'game',viewport, ...game});
   await page.close();
  }
  }finally{fs.writeFileSync(output+'/diagnostics.json',JSON.stringify(report,null,2));await browser.close()}
