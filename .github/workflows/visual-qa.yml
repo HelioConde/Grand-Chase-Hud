@@ -19,7 +19,7 @@ jobs:
           node-version: '22'
       - name: Install Playwright
         run: |
-          npm install --no-save playwright@1.58.2
+          npm install --no-save playwright
           npx playwright install --with-deps chromium
       - name: Capture screenshots
         run: node tests/visual-qa.cjs
