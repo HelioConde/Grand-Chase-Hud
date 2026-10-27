@@ -3,6 +3,11 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - 'index.html'
+      - 'style.css'
+      - 'game.html'
+      - 'game.css'
+      - 'game.js'
       - 'iniciar.html'
       - 'iniciar.css'
       - 'js/selection.js'
