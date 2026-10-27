@@ -2,9 +2,9 @@
 (() => {
 const roster={
  elesis:{name:'Elesis',role:'Guerreira',obj:'models/elesis/Elesis.obj',mtl:'models/elesis/Elesis.mtl',scale:.015,frontYaw:Math.PI+Math.PI/4},
- lire:{name:'Lire',role:'Arqueira',obj:'models/lire/Lire.obj',mtl:'models/lire/Lire.obj.mtl',scale:1.9,frontYaw:Math.PI},
- arme:{name:'Arme',role:'Maga',obj:'models/arme/arme.obj',mtl:'models/arme/arme.obj.mtl',scale:1,frontYaw:Math.PI*1.5},
- lass:{name:'Lass',role:'Assassino',obj:'models/lass/Lass.obj',mtl:'models/lass/Lass.obj.mtl',scale:.23,frontYaw:Math.PI*1.5}
+ lire:{name:'Lire',role:'Arqueira',obj:'models/lire/Lire.obj',mtl:'models/lire/Lire.obj.mtl',scale:1.9,frontYaw:Math.PI+Math.PI/4},
+ arme:{name:'Arme',role:'Maga',obj:'models/arme/arme.obj',mtl:'models/arme/arme.obj.mtl',scale:1,frontYaw:Math.PI*1.25},
+ lass:{name:'Lass',role:'Assassino',obj:'models/lass/Lass.obj',mtl:'models/lass/Lass.obj.mtl',scale:.23,frontYaw:Math.PI*1.25}
 };
 const $=id=>document.getElementById(id);
 const viewer=$('background'),status=$('viewerStatus'),name=$('selectedName'),desc=$('selectedDesc'),start=$('startGame');
