@@ -85,3 +85,11 @@ Desenvolvido por [Hélio Conde](https://github.com/HelioConde).
 6. **Expansão:** missões, checkpoints, novos cenários, controles móveis e testes Playwright são etapas futuras.
 
 **Nota de validação:** commits foram enviados ao GitHub, mas ainda não foram executados testes de navegador ou benchmark após esta rodada. O GitHub Pages pode levar alguns minutos para refletir as alterações.
+
+
+## Publicação estática por GitHub Actions (27/10/2026)
+O workflow [`.github/workflows/pages.yml`](.github/workflows/pages.yml) monta um artefato contendo apenas as páginas HTML, CSS, JavaScript, modelos, imagens e vídeos usados pela experiência. **PHP, servidor de aplicação e banco de dados não são necessários.**
+
+Em **Settings → Pages → Build and deployment**, escolha **GitHub Actions** como Source. Publicação prevista: https://helioconde.github.io/Grand-Chase-Hud/ . O workflow verifica sintaxe e arquivos essenciais antes do deploy; `visual-qa.yml` continua responsável por capturas Playwright. Até a Action concluir, o deploy não deve ser considerado validado.
+
+O portal respeita `prefers-reduced-motion`, inclusive pausando o vídeo de fundo; consulte [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) para as regras de design.
