@@ -1,6 +1,8 @@
 name: Visual QA screenshots
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
   push:
     paths:
       - 'index.html'
@@ -11,6 +13,7 @@ on:
       - 'iniciar.html'
       - 'iniciar.css'
       - 'js/selection.js'
+      - 'js/accessibility.js'
       - '.github/workflows/visual-qa.yml'
       - 'tests/visual-qa.cjs'
 jobs:

@@ -22,6 +22,25 @@ const characters=['elesis','lire','arme','lass'];
   await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded',timeout:20000});
   await page.screenshot({path:output+'/'+viewport.width+'x'+viewport.height+'-home.png',fullPage:true});
   const home=await page.evaluate(()=>({horizontalOverflow:document.documentElement.scrollWidth>innerWidth,mainLink:!!document.querySelector('a[href="./iniciar.html"]'),playLink:!!document.querySelector('a[href="./game.html?char=elesis"]')}));
+  // Acessibilidade: visitante pode pausar a animação sem alterar o jogo.
+  const motion=page.locator('#motion-toggle');
+  if(!(await motion.count())){failed=true;errors.push('Home: controle de movimento ausente')}
+  else {
+    await motion.click();
+    const paused=await page.locator('.background video').evaluate(video=>video.paused);
+    if(!paused||(await motion.getAttribute('aria-pressed'))!=='true'){failed=true;errors.push('Home: pausa manual nao funcionou')}
+    if(viewport.width===390) await page.screenshot({path:output+'/390x844-home-paused.png',fullPage:true});
+    await motion.click();
+    if((await motion.getAttribute('aria-pressed'))!=='false'){failed=true;errors.push('Home: retomar animacao nao funcionou')}
+    await page.emulateMedia({reducedMotion:'reduce'});
+    await page.waitForTimeout(100);
+    if(!(await motion.isDisabled())||!(await page.locator('.background video').evaluate(video=>video.paused))){
+      failed=true;errors.push('Home: movimento reduzido nao respeitado');
+    }
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    await page.waitForTimeout(100);
+    if(await motion.isDisabled()){failed=true;errors.push('Home: movimento nao restaurou controle')}
+  }
   if(home.horizontalOverflow||!home.mainLink||!home.playLink){failed=true;errors.push('Home: overflow ou links principais ausentes')}
   await page.goto('http://127.0.0.1:8765/iniciar.html',{waitUntil:'domcontentloaded',timeout:20000});
   await page.screenshot({path:output+'/'+viewport.width+'x'+viewport.height+'-initial.png',fullPage:true});
