@@ -1,31 +1,25 @@
-# Design System — Grand Chase HUD
+# Grand Chase HUD — Design System 2026
 
-## Essência preservada
-Fan project inspirado em Grand Chase: portal visual com logo, vídeo de fundo, tons noturnos e detalhes dourados; seleção de heróis e missão 2D com modelos OBJ/MTL opcionais. Não substituir retratos, recursos do jogo nem gameplay por imagens genéricas.
+## Objetivo e identidade
+Preservar a nostalgia Grand Chase com visual de RPG, retratos originais, modelos OBJ/MTL e três experiências: portal, seleção 3D e missão jogável.
 
-## Tokens existentes
-- `style.css`: `--gold: #f4cd7e`, `--muted: #b6c3d9`, `--outline: #ffffff35`.
-- Fundo do portal `#070b17`, cards azul-marinho e ouro para ações primárias.
-- Fontes do sistema para evitar dependência externa.
-- Uso responsivo de `clamp`, `max-width`, `grid` e `flex`.
+## Taste Skill
+Espaçamentos uniformes 4/8/12/16/24/32px; painéis de jogo com profundidade e fundos escuros; tipografia hierárquica; botões acessíveis com foco evidente.
 
-## Componentes
-- Portal: cabeçalho, hero, ações primária/secundária, painel de recursos e rodapé.
-- Seleção: cards de heróis com estados selecionado/desativado e viewer opcional.
-- Missão: HUD de HP/MP, score, canvas 960×540, instruções, mensagens e pausa.
-- Status: informar quando um modelo não está disponível; manter fallback 2D.
+## Web Design Guidelines
+- Links e botões semânticos, skip links, estados aria-pressed para o personagem selecionado.
+- Controles 3D operáveis pelo teclado; mensagens de estado quando WebGL ou OBJ falhar.
+- Layout sem rolagem horizontal, imagens com alt adequado, suporte a movimento reduzido em efeitos.
+- Não esconder botões importantes em alturas pequenas nem exigir toque preciso.
 
-## Acessibilidade
-- Ações por `button` ou `a`; `skip-link`; foco visível.
-- Movimento reduzido: ocultar e pausar o vídeo decorativo do portal.
-- Manter alvos de toque legíveis, mas a missão atual é concebida para teclado/desktop.
-- Nunca depender somente de cor para identificar saúde, recursos ou estado.
-
-## QA
-A Action `visual-qa.yml` usa Playwright para capturar home, seleção e jogo em múltiplas resoluções, registrar erros e avaliar visualização de personagens. Os artefatos `visual-qa/` permitem inspecionar regressões.
+## Awesome Design e Image to Code
+Use screenshots reais do portal, da seleção e da missão em 390, 1366 e 1600px. Melhore alinhamento, proporções e contraste, **sem trocar sprites e modelos históricos por artes genéricas**.
 
 ## GitHub Pages
-A Action `pages.yml` publica exclusivamente `index.html`, cenas, JS, CSS, vídeos e recursos públicos, sem servidor ou banco. A opção Settings → Pages → Source precisa estar como GitHub Actions.
+Site estático HTML/CSS/JS + ativos Three.js locais, sem banco de dados. Usar sempre caminhos relativos no carregamento de modelos e assets.
 
-## Pendências
-Testes reais em navegador, equilíbrio de combate, controles móveis, refinamento de rig/animações 3D e autorização para redistribuição de material de terceiros.
+## Playwright CLI
+`tests/visual-qa.cjs` captura home, seleção, quatro personagens em ângulos diferentes e missão por resolução. Trocar o evento inicial de navegação de `networkidle` para `domcontentloaded` evita travamento por recursos 3D; manter checagens explícitas de carregamento OBJ, overflow, WebGL, screenshots e erros.
+
+## Critérios de aceite
+Passagem de QA + deploy Actions, nenhum recurso ausente, ângulo frontal consistente, controles reset/zoom funcionais, missão responsiva, sem regressões de sprites.
