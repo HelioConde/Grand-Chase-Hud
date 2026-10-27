@@ -1,51 +1,49 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-
+<!doctype html>
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="Grand Chase HUD: projeto de fã com seleção de personagens, visualização 3D e missão experimental no navegador.">
+  <title>Grand Chase HUD | Portal de personagens</title>
+  <link rel="preload" href="./GC_logo.png" as="image">
+  <link rel="stylesheet" href="./style.css">
 </head>
-<link rel="stylesheet" href="style.css">
-
 <body>
-    <div id="background">
-        <video autoplay muted loop id="myVideo">
-            <source src="Ryan.mp4" type="video/mp4">
-        </video>
-    </div>
-    <main>
-        <div>
-            <div class="serve">
-                <div class="active">
-                    South America
-                </div>
-                <div>
-                    Asia
-                </div>
-                <div>
-                    Europe
-                </div>
-                <hr>
-                <a href="./iniciar.html">
-                    <span class="button">
-                        <button>Iniciar</button>
-                    </span>
-                </a>
-            </div>
+  <div class="background" aria-hidden="true">
+    <video autoplay muted loop playsinline preload="metadata" poster="./img/bg.png">
+      <source src="./Ryan.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="backdrop" aria-hidden="true"></div>
+  <div class="site">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Grand Chase HUD - Início"><span class="brand-mark">GC</span><span>GRAND CHASE <em>HUD</em></span></a>
+      <span class="version">PROJETO DE FÃ · DEMONSTRAÇÃO WEB</span>
+      <a class="top-link" href="https://github.com/HelioConde/Grand-Chase-Hud" target="_blank" rel="noopener noreferrer">Código no GitHub <span aria-hidden="true">↗</span></a>
+    </header>
+    <main class="hero">
+      <section class="hero-copy" aria-labelledby="page-title">
+        <p class="eyebrow">PORTAL DE PERSONAGENS <span class="eyebrow-line"></span> EXPERIÊNCIA INTERATIVA</p>
+        <img class="game-logo" src="./GC_logo.png" alt="Grand Chase" width="420" height="200">
+        <h1 id="page-title">Escolha seu herói.<br><span>Explore o universo.</span></h1>
+        <p class="intro">Reviva a atmosfera de Grand Chase em uma experiência feita por fã. Explore a seleção de personagens com modelos 3D e experimente uma missão no navegador.</p>
+        <div class="actions">
+          <a class="action action-primary" href="./iniciar.html"><span class="action-icon" aria-hidden="true">⚔</span> Explorar personagens <span aria-hidden="true">→</span></a>
+          <a class="action action-secondary" href="./game.html?char=elesis">Jogar demonstração <span aria-hidden="true">↗</span></a>
         </div>
-        <div></div>
-        <div class="logo"><img src="./GC_logo.png" alt="">
-            <div class="button">
-                <button>Praticar</button>
-            </div>
-        </div>
+        <p class="helper">Sem instalação ou cadastro. Experiência experimental para desktop.</p>
+      </section>
+      <aside class="portal-panel" aria-label="Recursos da experiência">
+        <div class="panel-heading"><span class="status-dot"></span> PORTAL ONLINE <span class="panel-label">VERSÃO WEB</span></div>
+        <h2>Uma nova forma de explorar</h2>
+        <div class="feature"><span class="feature-number">01</span><div><strong>Galeria de heróis</strong><p>Explore o elenco e seus retratos em uma seleção interativa.</p></div></div>
+        <div class="feature"><span class="feature-number">02</span><div><strong>Visualização 3D</strong><p>Confira os modelos disponíveis para Elesis, Lire, Arme e Lass.</p></div></div>
+        <div class="feature"><span class="feature-number">03</span><div><strong>Missão experimental</strong><p>Teste movimentação e combate na demonstração jogável.</p></div></div>
+        <a class="panel-link" href="./iniciar.html">Acessar seleção <span aria-hidden="true">→</span></a>
+      </aside>
     </main>
-    <footer>
-        <div>KOG</div>
-        <div class="exit"><i>ESC</i> Sair do Jogo</div>
-    </footer>
+    <footer class="footer"><span>GRAND CHASE HUD · PROJETO NÃO OFICIAL</span><span>Feito por <a href="https://github.com/HelioConde" target="_blank" rel="noopener noreferrer">Hélio Conde</a> · Personagens e marcas pertencem a seus titulares.</span></footer>
+  </div>
 </body>
-
 </html>
