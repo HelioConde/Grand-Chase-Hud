@@ -59,8 +59,9 @@ const characters=['elesis','lire','arme','lass'];
     await page.evaluate(yaw=>window.__GC_CAPTURE_POSE__?.(yaw),data.state.initialYaw);
     await page.evaluate(yaw=>window.__GC_CAPTURE_POSE__?.(yaw+0.8),data.state.initialYaw);
     await page.locator('#resetView').click();
-    const resetYaw=await page.evaluate(()=>window.__GC_CAPTURE_POSE__ ? window.__GC_VISUAL_QA__.initialYaw : null);
-    data.resetControlTest=resetYaw!==null;
+    const resetYaw=await page.evaluate(()=>window.__GC_GET_POSE__?.());
+    data.resetControlTest=resetYaw!==null&&Math.abs(resetYaw-data.state.initialYaw)<0.0001;
+    if(!data.resetControlTest)errors.push('Reset view failed: '+character);
    }
    data.errors=errors.slice(before);data.character=character;data.image=path;data.home=home;
    data.orientationSweep=viewport.width===1600&&data.state?.loaded?['front','quarter','rear','other-side'].map(label=>output+'/orientation-'+character+'-'+label+'.png'):[];
