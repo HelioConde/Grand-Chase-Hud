@@ -57,6 +57,10 @@ const characters=['elesis','lire','arme','lass'];
      await page.screenshot({path:output+'/orientation-'+character+'-'+label+'.png',fullPage:false,animations:'disabled'});
     }
     await page.evaluate(yaw=>window.__GC_CAPTURE_POSE__?.(yaw),data.state.initialYaw);
+    await page.evaluate(yaw=>window.__GC_CAPTURE_POSE__?.(yaw+0.8),data.state.initialYaw);
+    await page.locator('#resetView').click();
+    const resetYaw=await page.evaluate(()=>window.__GC_CAPTURE_POSE__ ? window.__GC_VISUAL_QA__.initialYaw : null);
+    data.resetControlTest=resetYaw!==null;
    }
    data.errors=errors.slice(before);data.character=character;data.image=path;data.home=home;
    data.orientationSweep=viewport.width===1600&&data.state?.loaded?['front','quarter','rear','other-side'].map(label=>output+'/orientation-'+character+'-'+label+'.png'):[];
