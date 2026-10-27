@@ -62,7 +62,9 @@ function select(id){
    if(!Number.isFinite(size.y)||size.y<=0){report('Modelo sem dimensões válidas.');return}
    const scale=2.75/Math.max(size.y,.001);group.scale.setScalar(scale);
    group.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);
-   actor=group;actor.rotation.y=Math.PI;scene.add(actor);status.hidden=true;
+   // Pivot around the character, not the translated model origin.
+   const pivot=new THREE.Group();pivot.add(group);
+   actor=pivot;actor.rotation.y=Math.PI;scene.add(actor);status.hidden=true;
   },undefined,e=>{if(seq===loadId){report('Erro ao carregar o modelo OBJ.');failures.push(String(e))}});
  },undefined,e=>{if(seq===loadId){report('Erro ao carregar materiais do modelo.');failures.push(String(e))}});
 }
