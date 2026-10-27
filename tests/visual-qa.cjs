@@ -19,11 +19,15 @@ const characters=['elesis','lire','arme','lass'];
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
   page.on('requestfailed',r=>errors.push('requestfailed '+r.url()+' '+r.failure()?.errorText));
   page.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url())});
-  await page.goto('http://127.0.0.1:8765/',{waitUntil:'networkidle'});
+  // The landing page plays a looping video; networkidle never reliably settles.
+  await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded',timeout:20000});
+  await page.locator('a[href="./iniciar.html"]').first().waitFor({state:'visible',timeout:10000});
   await page.screenshot({path:output+'/'+viewport.width+'x'+viewport.height+'-home.png',fullPage:true});
   const home=await page.evaluate(()=>({horizontalOverflow:document.documentElement.scrollWidth>innerWidth,mainLink:!!document.querySelector('a[href="./iniciar.html"]'),playLink:!!document.querySelector('a[href="./game.html?char=elesis"]')}));
   if(home.horizontalOverflow||!home.mainLink||!home.playLink){failed=true;errors.push('Home: overflow ou links principais ausentes')}
-  await page.goto('http://127.0.0.1:8765/iniciar.html',{waitUntil:'networkidle'});
+  // Wait for the usable interface, not the completion of large 3D assets.
+  await page.goto('http://127.0.0.1:8765/iniciar.html',{waitUntil:'domcontentloaded',timeout:20000});
+  await page.locator('#characters .char-card[data-char="elesis"]').waitFor({state:'visible',timeout:10000});
   await page.screenshot({path:output+'/'+viewport.width+'x'+viewport.height+'-initial.png',fullPage:true});
   for(const character of characters){
    const before=errors.length;
