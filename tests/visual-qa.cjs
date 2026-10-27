@@ -19,11 +19,15 @@ const characters=['elesis','lire','arme','lass'];
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
   page.on('requestfailed',r=>errors.push('requestfailed '+r.url()+' '+r.failure()?.errorText));
   page.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url())});
-  await page.goto('http://127.0.0.1:8765/',{waitUntil:'networkidle'});
+  // Home may load background video indefinitely; wait for DOM, not network silence.
+  await page.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded',timeout:20000});
+  await page.locator('body').waitFor({state:'visible',timeout:10000});
   await page.screenshot({path:output+'/'+viewport.width+'x'+viewport.height+'-home.png',fullPage:true});
   const home=await page.evaluate(()=>({horizontalOverflow:document.documentElement.scrollWidth>innerWidth,mainLink:!!document.querySelector('a[href="./iniciar.html"]'),playLink:!!document.querySelector('a[href="./game.html?char=elesis"]')}));
   if(home.horizontalOverflow||!home.mainLink||!home.playLink){failed=true;errors.push('Home: overflow ou links principais ausentes')}
-  await page.goto('http://127.0.0.1:8765/iniciar.html',{waitUntil:'networkidle'});
+  // Three.js and video assets may stream while the selection UI is already ready.
+  await page.goto('http://127.0.0.1:8765/iniciar.html',{waitUntil:'domcontentloaded',timeout:20000});
+  await page.locator('[data-char="elesis"]').waitFor({state:'visible',timeout:10000});
   await page.screenshot({path:output+'/'+viewport.width+'x'+viewport.height+'-initial.png',fullPage:true});
   for(const character of characters){
    const before=errors.length;
