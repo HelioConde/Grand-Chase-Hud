@@ -19,6 +19,10 @@ const characters=['elesis','lire','arme','lass'];
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
   page.on('requestfailed',r=>errors.push('requestfailed '+r.url()+' '+r.failure()?.errorText));
   page.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url())});
+  await page.goto('http://127.0.0.1:8765/',{waitUntil:'networkidle'});
+  await page.screenshot({path:output+'/'+viewport.width+'x'+viewport.height+'-home.png',fullPage:true});
+  const home=await page.evaluate(()=>({horizontalOverflow:document.documentElement.scrollWidth>innerWidth,mainLink:!!document.querySelector('a[href="./iniciar.html"]'),playLink:!!document.querySelector('a[href="./game.html?char=elesis"]')}));
+  if(home.horizontalOverflow||!home.mainLink||!home.playLink){failed=true;errors.push('Home: overflow ou links principais ausentes')}
   await page.goto('http://127.0.0.1:8765/iniciar.html',{waitUntil:'networkidle'});
   await page.screenshot({path:output+'/'+viewport.width+'x'+viewport.height+'-initial.png',fullPage:true});
   for(const character of characters){
@@ -37,6 +41,8 @@ const characters=['elesis','lire','arme','lass'];
     verticalOverflow:document.documentElement.scrollHeight>innerHeight,
     hiddenImportantControls:[...document.querySelectorAll('.back,#resetView,#startGame')].filter(el=>{const r=el.getBoundingClientRect();const css=getComputedStyle(el);return !r.width||!r.height||css.visibility==='hidden'||css.display==='none'}).map(el=>el.id||el.className),
     viewerRect:(()=>{const r=document.querySelector('#background').getBoundingClientRect();return {width:r.width,height:r.height,left:r.left,top:r.top}})(),
+    layoutViolations:[...document.querySelectorAll('.stage,.sidebar,.viewer,#startGame,#resetView')].filter(el=>{const r=el.getBoundingClientRect();return r.width<1||r.height<1||r.left< -1||r.right>innerWidth+1}).map(el=>el.id||el.className),
+    resetVisible:(()=>{const r=document.querySelector('#resetView').getBoundingClientRect();return r.width>0&&r.height>0})(),
     state:window.__GC_VISUAL_QA__||null,
     screenshotButtonPresent:!!document.querySelector('#capture'),
     viewport:{width:innerWidth,height:innerHeight}
@@ -52,9 +58,9 @@ const characters=['elesis','lire','arme','lass'];
     }
     await page.evaluate(yaw=>window.__GC_CAPTURE_POSE__?.(yaw),data.state.initialYaw);
    }
-   data.errors=errors.slice(before);data.character=character;data.image=path;
+   data.errors=errors.slice(before);data.character=character;data.image=path;data.home=home;
    data.orientationSweep=viewport.width===1600&&data.state?.loaded?['front','quarter','rear','other-side'].map(label=>output+'/orientation-'+character+'-'+label+'.png'):[];
-   data.passed=!!data.state?.loaded&&data.state.character===character&&data.canvasCount===1&&!data.horizontalOverflow&&!data.hiddenImportantControls.length&&!data.screenshotButtonPresent&&!data.errors.some(x=>/TypeError|ReferenceError|404|timeout/.test(x));
+   data.passed=!!data.state?.loaded&&data.state.character===character&&data.canvasCount===1&&!data.horizontalOverflow&&!data.hiddenImportantControls.length&&!data.layoutViolations.length&&!data.screenshotButtonPresent&&!data.errors.some(x=>/TypeError|ReferenceError|404|timeout/.test(x));
    if(!data.passed)failed=true;
    report.push(data);
    summary.push('|'+viewport.width+'×'+viewport.height+'|'+character+'|'+(data.passed?'PASS':'FAIL')+'|'+data.errors.length+'|'+(data.horizontalOverflow?'Sim':'Não')+'|');
