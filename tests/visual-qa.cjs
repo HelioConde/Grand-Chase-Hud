@@ -43,7 +43,17 @@ const characters=['elesis','lire','arme','lass'];
    }));
    const path=output+'/'+viewport.width+'x'+viewport.height+'-'+character+'.png';
    await page.screenshot({path,fullPage:true,animations:'disabled'});
+   // Four diagnostic angles reveal sideways or backward-facing OBJ exports.
+   if(viewport.width===1600&&data.state?.loaded){
+    for(const [label,offset] of [['front',0],['quarter',Math.PI/2],['rear',Math.PI],['other-side',3*Math.PI/2]]){
+     await page.evaluate(yaw=>window.__GC_CAPTURE_POSE__?.(yaw),data.state.initialYaw+offset);
+     await page.waitForTimeout(150);
+     await page.screenshot({path:output+'/orientation-'+character+'-'+label+'.png',fullPage:false,animations:'disabled'});
+    }
+    await page.evaluate(yaw=>window.__GC_CAPTURE_POSE__?.(yaw),data.state.initialYaw);
+   }
    data.errors=errors.slice(before);data.character=character;data.image=path;
+   data.orientationSweep=viewport.width===1600&&data.state?.loaded?['front','quarter','rear','other-side'].map(label=>output+'/orientation-'+character+'-'+label+'.png'):[];
    data.passed=!!data.state?.loaded&&data.state.character===character&&data.canvasCount===1&&!data.horizontalOverflow&&!data.hiddenImportantControls.length&&!data.screenshotButtonPresent&&!data.errors.some(x=>/TypeError|ReferenceError|404|timeout/.test(x));
    if(!data.passed)failed=true;
    report.push(data);
