@@ -27,7 +27,7 @@ function init(){
   const resize=()=>{const w=Math.max(1,viewer.clientWidth),h=Math.max(1,viewer.clientHeight);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()};
   resize();window.addEventListener('resize',resize);
   if(window.ResizeObserver)new ResizeObserver(resize).observe(viewer);
-  const render=()=>{raf=requestAnimationFrame(render);// Keep a stable front-facing pose until the visitor deliberately rotates the model.renderer.render(scene,camera)};
+  const render=()=>{raf=requestAnimationFrame(render);renderer.render(scene,camera)};
   render();
   select(selected);
  }catch(e){report('Não foi possível iniciar o WebGL.');failures.push(String(e))}
