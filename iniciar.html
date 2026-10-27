@@ -5,7 +5,7 @@
 <div class="hero-heading"><img src="./GC_logo.png" alt="Grand Chase" class="logo"><div><p class="eyebrow">GALERIA DE PERSONAGENS</p><h1 id="selectedName">Elesis</h1><p id="selectedDesc">Guerreira · Modelo 3D disponível</p></div></div>
 <div class="viewer" id="background" role="img" aria-label="Visualização tridimensional do personagem selecionado"><div class="viewer-loading" id="viewerStatus" role="status">Carregando visualizador 3D…</div></div>
 <div class="viewer-footer"><span>Arraste para girar o personagem · Roda do mouse para aproximar</span><button id="resetView" type="button">Redefinir visão</button></div>
-<div class="bottom"><span>Projeto independente de fã · Experiência demonstrativa</span><button id="capture" type="button">📷 Capturar tela</button></div>
+<div class="bottom"><span>Projeto independente de fã · Experiência demonstrativa</span></div>
 </section>
 <aside class="sidebar" aria-label="Seleção de personagens"><div class="side-head"><span class="eyebrow">ESCOLHA SEU HERÓI</span><h2>Personagens</h2><p>Quatro modelos 3D disponíveis. Outros retratos fazem parte da galeria.</p></div><div class="chars" id="characters"><button class="char-card selected" type="button" data-char="elesis"  aria-pressed="true"><img src="./img/char_1.png" alt="" loading="eager"><span>Elesis</span></button>
 <button class="char-card" type="button" data-char="lire"  aria-pressed="false"><img src="./img/char_2.png" alt="" loading="eager"><span>Lire</span></button>
@@ -28,5 +28,4 @@
 <button class="char-card" type="button" data-char="veigas" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_19.png" alt="" loading="lazy"><span>Veigas</span><small>Em breve</small></button>
 <button class="char-card" type="button" data-char="uno" disabled title="Visualizador 3D ainda não disponível" aria-pressed="false"><img src="./img/char_20.png" alt="" loading="lazy"><span>Uno</span><small>Em breve</small></button></div><div class="side-actions"><p id="selectionStatus" role="status">Elesis selecionada</p><a class="play" id="startGame" href="./game.html?char=elesis">Iniciar missão →</a></div></aside>
 </main>
-<div class="capture-help" id="captureHelp" hidden><div class="capture-dialog" role="dialog" aria-modal="true" aria-labelledby="captureTitle"><h2 id="captureTitle">Captura de tela</h2><p>O navegador solicitará que você escolha qual aba compartilhar. Selecione esta aba para salvar uma imagem PNG. Nenhum arquivo é enviado automaticamente.</p><div class="capture-actions"><button id="captureCancel" type="button">Cancelar</button><button id="captureContinue" type="button">Escolher aba</button></div></div></div>
 <script src="./js/three.min.js"></script><script src="./js/MTLLoader.js"></script><script src="./js/OBJLoader.js"></script><script src="./js/selection.js" defer></script></body></html>
