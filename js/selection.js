@@ -1,10 +1,10 @@
 'use strict';
 (() => {
 const roster={
- elesis:{name:'Elesis',role:'Guerreira',obj:'models/elesis/Elesis.obj',mtl:'models/elesis/Elesis.mtl',scale:.015},
- lire:{name:'Lire',role:'Arqueira',obj:'models/lire/Lire.obj',mtl:'models/lire/Lire.obj.mtl',scale:1.9},
- arme:{name:'Arme',role:'Maga',obj:'models/arme/arme.obj',mtl:'models/arme/arme.obj.mtl',scale:1},
- lass:{name:'Lass',role:'Assassino',obj:'models/lass/Lass.obj',mtl:'models/lass/Lass.obj.mtl',scale:.23}
+ elesis:{name:'Elesis',role:'Guerreira',obj:'models/elesis/Elesis.obj',mtl:'models/elesis/Elesis.mtl',scale:.015,frontYaw:0},
+ lire:{name:'Lire',role:'Arqueira',obj:'models/lire/Lire.obj',mtl:'models/lire/Lire.obj.mtl',scale:1.9,frontYaw:0},
+ arme:{name:'Arme',role:'Maga',obj:'models/arme/arme.obj',mtl:'models/arme/arme.obj.mtl',scale:1,frontYaw:Math.PI/2},
+ lass:{name:'Lass',role:'Assassino',obj:'models/lass/Lass.obj',mtl:'models/lass/Lass.obj.mtl',scale:.23,frontYaw:0}
 };
 const $=id=>document.getElementById(id);
 const viewer=$('background'),status=$('viewerStatus'),name=$('selectedName'),desc=$('selectedDesc'),start=$('startGame');
@@ -43,7 +43,7 @@ function select(id){
  const seq=++loadId;
  if(actor){scene.remove(actor);actor=null}
  zoom=1;camera.position.set(0,1.25,5.5);
- report('Carregando '+item.name+'…');
+ report('Carregando '+item.name+'…');window.__GC_VISUAL_QA__={character:id,loaded:false};
  const mtl=new THREE.MTLLoader();
  mtl.load(item.mtl,materials=>{
   if(seq!==loadId)return;
@@ -64,7 +64,8 @@ function select(id){
    group.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);
    // Pivot around the character, not the translated model origin.
    const pivot=new THREE.Group();pivot.add(group);
-   actor=pivot;actor.rotation.y=Math.PI;scene.add(actor);status.hidden=true;
+   actor=pivot;actor.rotation.y=item.frontYaw;scene.add(actor);status.hidden=true;
+   window.__GC_VISUAL_QA__={character:id,loaded:true,initialYaw:item.frontYaw,modelHeight:size.y,scale,webgl:!!renderer};
   },undefined,e=>{if(seq===loadId){report('Erro ao carregar o modelo OBJ.');failures.push(String(e))}});
  },undefined,e=>{if(seq===loadId){report('Erro ao carregar materiais do modelo.');failures.push(String(e))}});
 }
@@ -73,7 +74,7 @@ viewer.addEventListener('pointerdown',e=>{dragging=true;dragX=e.clientX;viewer.s
 viewer.addEventListener('pointermove',e=>{if(!dragging||!actor)return;actor.rotation.y+=(e.clientX-dragX)*.008;dragX=e.clientX});
 viewer.addEventListener('pointerup',()=>dragging=false);viewer.addEventListener('pointercancel',()=>dragging=false);
 viewer.addEventListener('wheel',e=>{if(!camera)return;e.preventDefault();zoom=Math.max(.65,Math.min(1.65,zoom+Math.sign(e.deltaY)*.08));camera.position.z=5.5*zoom},{passive:false});
-$('resetView').addEventListener('click',()=>{zoom=1;if(camera)camera.position.z=5.5;if(actor)actor.rotation.y=Math.PI});
+$('resetView').addEventListener('click',()=>{zoom=1;if(camera)camera.position.z=5.5;if(actor)actor.rotation.y=roster[selected].frontYaw});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')location.href='./';if(!actor||e.target.closest('button,a,input'))return;if(e.key==='ArrowLeft')actor.rotation.y-=.15;if(e.key==='ArrowRight')actor.rotation.y+=.15});
 window.addEventListener('pagehide',()=>{cancelAnimationFrame(raf);if(renderer)renderer.dispose()},{once:true});
 init();
