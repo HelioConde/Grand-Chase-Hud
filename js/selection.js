@@ -8,7 +8,7 @@ const roster={
 };
 const $=id=>document.getElementById(id);
 const viewer=$('background'),status=$('viewerStatus'),name=$('selectedName'),desc=$('selectedDesc'),start=$('startGame');
-let selected='elesis',renderer,scene,camera,actor,loadId=0,rotation=0,zoom=1,dragging=false,dragX=0,raf=0;
+let selected='elesis',renderer,scene,camera,actor,loadId=0,zoom=1,dragging=false,dragX=0,raf=0;
 const failures=[];
 window.addEventListener('error',e=>{failures.push(String(e.message||'Erro'));if(failures.length>20)failures.shift()});
 window.addEventListener('unhandledrejection',e=>{failures.push(String(e.reason));if(failures.length>20)failures.shift()});
@@ -27,7 +27,7 @@ function init(){
   const resize=()=>{const w=Math.max(1,viewer.clientWidth),h=Math.max(1,viewer.clientHeight);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix()};
   resize();window.addEventListener('resize',resize);
   if(window.ResizeObserver)new ResizeObserver(resize).observe(viewer);
-  const render=()=>{raf=requestAnimationFrame(render);if(actor&&!dragging&&!matchMedia('(prefers-reduced-motion: reduce)').matches)actor.rotation.y+=.002;renderer.render(scene,camera)};
+  const render=()=>{raf=requestAnimationFrame(render);// Keep a stable front-facing pose until the visitor deliberately rotates the model.renderer.render(scene,camera)};
   render();
   select(selected);
  }catch(e){report('Não foi possível iniciar o WebGL.');failures.push(String(e))}
@@ -42,7 +42,7 @@ function select(id){
  if(!scene)return;
  const seq=++loadId;
  if(actor){scene.remove(actor);actor=null}
- rotation=0;zoom=1;camera.position.set(0,1.25,5.5);
+ zoom=1;camera.position.set(0,1.25,5.5);
  report('Carregando '+item.name+'…');
  const mtl=new THREE.MTLLoader();
  mtl.load(item.mtl,materials=>{
@@ -62,7 +62,7 @@ function select(id){
    if(!Number.isFinite(size.y)||size.y<=0){report('Modelo sem dimensões válidas.');return}
    const scale=2.75/Math.max(size.y,.001);group.scale.setScalar(scale);
    group.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);
-   actor=group;scene.add(actor);status.hidden=true;
+   actor=group;actor.rotation.y=Math.PI;scene.add(actor);status.hidden=true;
   },undefined,e=>{if(seq===loadId){report('Erro ao carregar o modelo OBJ.');failures.push(String(e))}});
  },undefined,e=>{if(seq===loadId){report('Erro ao carregar materiais do modelo.');failures.push(String(e))}});
 }
@@ -71,29 +71,8 @@ viewer.addEventListener('pointerdown',e=>{dragging=true;dragX=e.clientX;viewer.s
 viewer.addEventListener('pointermove',e=>{if(!dragging||!actor)return;actor.rotation.y+=(e.clientX-dragX)*.008;dragX=e.clientX});
 viewer.addEventListener('pointerup',()=>dragging=false);viewer.addEventListener('pointercancel',()=>dragging=false);
 viewer.addEventListener('wheel',e=>{if(!camera)return;e.preventDefault();zoom=Math.max(.65,Math.min(1.65,zoom+Math.sign(e.deltaY)*.08));camera.position.z=5.5*zoom},{passive:false});
-$('resetView').addEventListener('click',()=>{zoom=1;if(camera)camera.position.z=5.5;if(actor)actor.rotation.y=0});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('captureHelp').hidden)location.href='./';else if(e.key==='Escape')$('captureHelp').hidden=true});
-const help=$('captureHelp');$('capture').addEventListener('click',()=>help.hidden=false);$('captureCancel').addEventListener('click',()=>help.hidden=true);
-help.addEventListener('click',e=>{if(e.target===help)help.hidden=true});
-function download(blob,file){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=file;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
-$('captureContinue').addEventListener('click',async()=>{
- help.hidden=true;
- if(!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia){alert('Seu navegador não suporta captura de abas. Use a ferramenta de captura do sistema e envie a imagem no chat.');return}
- let stream;
- try{
-  stream=await navigator.mediaDevices.getDisplayMedia({video:{displaySurface:'browser'},audio:false});
-  const video=document.createElement('video');video.srcObject=stream;video.muted=true;await video.play();
-  if(!video.videoWidth)await new Promise(resolve=>{video.addEventListener('loadedmetadata',resolve,{once:true})});
-  await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-  const canvas=document.createElement('canvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-  canvas.getContext('2d').drawImage(video,0,0);
-  const stamp=new Date().toISOString().replace(/[:.]/g,'-');
-  canvas.toBlob(blob=>{if(blob)download(blob,'grand-chase-hud-'+selected+'-'+stamp+'.png')},'image/png');
-  const diagnostic={url:location.href,character:selected,viewport:{width:innerWidth,height:innerHeight,devicePixelRatio:devicePixelRatio},webglReady:!!actor,errors:failures,createdAt:new Date().toISOString()};
-  download(new Blob([JSON.stringify(diagnostic,null,2)],{type:'application/json'}),'grand-chase-diagnostico-'+stamp+'.json');
- }catch(e){if(e.name!=='NotAllowedError')alert('Não foi possível capturar a aba: '+e.message)}
- finally{if(stream)stream.getTracks().forEach(track=>track.stop())}
-});
+$('resetView').addEventListener('click',()=>{zoom=1;if(camera)camera.position.z=5.5;if(actor)actor.rotation.y=Math.PI});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')location.href='./';if(!actor||e.target.closest('button,a,input'))return;if(e.key==='ArrowLeft')actor.rotation.y-=.15;if(e.key==='ArrowRight')actor.rotation.y+=.15});
 window.addEventListener('pagehide',()=>{cancelAnimationFrame(raf);if(renderer)renderer.dispose()},{once:true});
 init();
 })();
