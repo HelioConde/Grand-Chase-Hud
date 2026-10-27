@@ -10,7 +10,7 @@ const characters=['elesis','lire','arme','lass'];
 (async()=>{
  await sleep(1400);
  const browser=await chromium.launch({headless:true,args:['--use-gl=angle','--use-angle=swiftshader','--enable-webgl','--ignore-gpu-blocklist']});
- const report=[];let failed=false;
+ const report=[];let failed=false;const summary=[];
  try{
  for(const viewport of viewports){
   const page=await browser.newPage({viewport,deviceScaleFactor:1});
@@ -18,7 +18,9 @@ const characters=['elesis','lire','arme','lass'];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});
   page.on('requestfailed',r=>errors.push('requestfailed '+r.url()+' '+r.failure()?.errorText));
-  await page.goto('http://127.0.0.1:8765/iniciar.html',{waitUntil:'domcontentloaded'});
+  page.on('response',r=>{if(r.status()>=400)errors.push('HTTP '+r.status()+' '+r.url())});
+  await page.goto('http://127.0.0.1:8765/iniciar.html',{waitUntil:'networkidle'});
+  await page.screenshot({path:output+'/'+viewport.width+'x'+viewport.height+'-initial.png',fullPage:true});
   for(const character of characters){
    const before=errors.length;
    await page.locator('[data-char="'+character+'"]').click();
@@ -33,6 +35,7 @@ const characters=['elesis','lire','arme','lass'];
     canvasCount:document.querySelectorAll('.viewer canvas').length,
     horizontalOverflow:document.documentElement.scrollWidth>innerWidth,
     verticalOverflow:document.documentElement.scrollHeight>innerHeight,
+    hiddenImportantControls:[...document.querySelectorAll('.back,#resetView,#startGame')].filter(el=>{const r=el.getBoundingClientRect();const css=getComputedStyle(el);return !r.width||!r.height||css.visibility==='hidden'||css.display==='none'}).map(el=>el.id||el.className),
     viewerRect:(()=>{const r=document.querySelector('#background').getBoundingClientRect();return {width:r.width,height:r.height,left:r.left,top:r.top}})(),
     state:window.__GC_VISUAL_QA__||null,
     screenshotButtonPresent:!!document.querySelector('#capture'),
@@ -41,13 +44,17 @@ const characters=['elesis','lire','arme','lass'];
    const path=output+'/'+viewport.width+'x'+viewport.height+'-'+character+'.png';
    await page.screenshot({path,fullPage:true,animations:'disabled'});
    data.errors=errors.slice(before);data.character=character;data.image=path;
-   data.passed=!!data.state?.loaded&&data.state.character===character&&data.canvasCount===1&&!data.horizontalOverflow&&!data.screenshotButtonPresent&&!data.errors.some(x=>/TypeError|ReferenceError|404|timeout/.test(x));
+   data.passed=!!data.state?.loaded&&data.state.character===character&&data.canvasCount===1&&!data.horizontalOverflow&&!data.hiddenImportantControls.length&&!data.screenshotButtonPresent&&!data.errors.some(x=>/TypeError|ReferenceError|404|timeout/.test(x));
    if(!data.passed)failed=true;
    report.push(data);
+   summary.push('|'+viewport.width+'×'+viewport.height+'|'+character+'|'+(data.passed?'PASS':'FAIL')+'|'+data.errors.length+'|'+(data.horizontalOverflow?'Sim':'Não')+'|');
    console.log(character,viewport.width+'x'+viewport.height,data.passed?'PASS':'FAIL',JSON.stringify(data.state),data.errors.join(' | '));
   }
   await page.close();
  }
  }finally{fs.writeFileSync(output+'/diagnostics.json',JSON.stringify(report,null,2));await browser.close()}
+ const markdown=['# Grand Chase HUD — Visual QA','','| Resolução | Personagem | Resultado | Erros | Overflow horizontal |','|---|---|---|---:|---|',...summary,'','Os screenshots PNG e o relatório diagnostics.json estão no artefato da execução.'].join('\n');
+ fs.writeFileSync(output+'/report.md',markdown);
+ if(process.env.GITHUB_STEP_SUMMARY)fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,markdown+'\n');
  if(failed)process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.kill());
