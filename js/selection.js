@@ -43,7 +43,7 @@ function select(id){
  const seq=++loadId;
  if(actor){scene.remove(actor);actor=null}
  zoom=1;camera.position.set(0,1.25,5.5);
- report('Carregando '+item.name+'…');window.__GC_CAPTURE_POSE__=null;window.__GC_VISUAL_QA__={character:id,loaded:false};
+ report('Carregando '+item.name+'…');window.__GC_CAPTURE_POSE__=null;window.__GC_GET_POSE__=null;window.__GC_VISUAL_QA__={character:id,loaded:false};
  const mtl=new THREE.MTLLoader();
  mtl.load(item.mtl,materials=>{
   if(seq!==loadId)return;
@@ -67,6 +67,7 @@ function select(id){
    actor=pivot;actor.rotation.y=item.frontYaw;scene.add(actor);status.hidden=true;
    window.__GC_VISUAL_QA__={character:id,loaded:true,initialYaw:item.frontYaw,modelHeight:size.y,scale,webgl:!!renderer};
    window.__GC_CAPTURE_POSE__=yaw=>{if(!actor)return false;actor.rotation.y=yaw;return true};
+   window.__GC_GET_POSE__=()=>actor?actor.rotation.y:null;
   },undefined,e=>{if(seq===loadId){report('Erro ao carregar o modelo OBJ.');failures.push(String(e))}});
  },undefined,e=>{if(seq===loadId){report('Erro ao carregar materiais do modelo.');failures.push(String(e))}});
 }
