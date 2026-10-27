@@ -56,8 +56,9 @@ function select(id){
    group.add(mesh);
    mesh.updateMatrixWorld(true);
    const bounds=new THREE.Box3().setFromObject(group);
-   const size=bounds.getSize(new THREE.Vector3());
-   const center=bounds.getCenter(new THREE.Vector3());
+   // Three.js r78 does not provide Box3.getSize/getCenter.
+   const size=new THREE.Vector3(bounds.max.x-bounds.min.x,bounds.max.y-bounds.min.y,bounds.max.z-bounds.min.z);
+   const center=new THREE.Vector3((bounds.min.x+bounds.max.x)/2,(bounds.min.y+bounds.max.y)/2,(bounds.min.z+bounds.max.z)/2);
    if(!Number.isFinite(size.y)||size.y<=0){report('Modelo sem dimensões válidas.');return}
    const scale=2.75/Math.max(size.y,.001);group.scale.setScalar(scale);
    group.position.set(-center.x*scale,-bounds.min.y*scale,-center.z*scale);
