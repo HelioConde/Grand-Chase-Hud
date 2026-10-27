@@ -23,3 +23,9 @@ Site estático HTML/CSS/JS + ativos Three.js locais, sem banco de dados. Usar se
 
 ## Critérios de aceite
 Passagem de QA + deploy Actions, nenhum recurso ausente, ângulo frontal consistente, controles reset/zoom funcionais, missão responsiva, sem regressões de sprites.
+## Controle manual do vídeo decorativo — 27/10/2026
+
+- O portal agora permite **pausar ou retomar o vídeo de fundo** sem modificar a missão ou a seleção de personagens.
+- O botão semântico tem foco de teclado, altura mínima de 44px, `aria-pressed` e texto que comunica a ação.
+- Em `prefers-reduced-motion: reduce`, o vídeo é pausado e o controle informa o estado desabilitado; ao alterar essa preferência em execução, a interface sincroniza o estado.
+- O Playwright verifica pausa, retomada e mudança de preferência nas resoluções desktop/mobile, incluindo screenshot do estado pausado em 390×844.
